@@ -1,3 +1,14 @@
-{$CLOUD_DOMAIN} {
+{
+    default_sni {$CLOUD_IP}
+}
+
+https://{$CLOUD_IP} {
+    tls {
+        issuer acme https://acme-v02.api.letsencrypt.org/directory {
+            profile shortlived
+        }
+    }
+
+    respond /_oblakohub/tls-ready "oblakohub-tls-ready"
     reverse_proxy cloud:8080
 }

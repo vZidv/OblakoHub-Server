@@ -10,7 +10,7 @@ services:
   caddy:
     image: caddy:2-alpine
     environment:
-      CLOUD_DOMAIN: ${CLOUD_DOMAIN:?Set CLOUD_DOMAIN in .env}
+      CLOUD_IP: "${CLOUD_IP:?Run bash install.sh}"
     ports:
       - "80:80"
       - "443:443"
@@ -18,8 +18,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
-    depends_on:
-      - cloud
+    # TLS must be ready before starting the cloud.
     restart: unless-stopped
 
 volumes:
