@@ -1,0 +1,28 @@
+services:
+  cloud:
+    build: .
+    environment:
+      ASPNETCORE_HTTP_PORTS: "8080"
+    volumes:
+      - cloud-data:/data
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      CLOUD_DOMAIN: ${CLOUD_DOMAIN:?Set CLOUD_DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - cloud
+    restart: unless-stopped
+
+volumes:
+  cloud-data:
+  caddy-data:
+  caddy-config:
