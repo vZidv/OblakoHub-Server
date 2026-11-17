@@ -1,3 +1,4 @@
+using SkiaSharp;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -9,29 +10,48 @@ var data = Path.GetFullPath(builder.Configuration["OBLAKO_DATA"] ?? "data");
 var files = Directory.CreateDirectory(Path.Combine(data, "files")).FullName;
 var credentialsPath = Path.Combine(data, "credentials.json");
 var changes = new SemaphoreSlim(1);
+var thumbnailSlot = new SemaphoreSlim(1);
 var pairingCode = RandomNumberGenerator.GetHexString(32);
 var pairingExpires = DateTimeOffset.UtcNow.AddMinutes(15);
-var tokenHash = File.Exists(credentialsPath)
-    ? JsonSerializer.Deserialize<string>(File.ReadAllText(credentialsPath))
-    : null;
+var credentials = ReadCredentials();
+var tokenHash = credentials?.TokenHash;
+long? quotaBytes = credentials?.QuotaBytes;
 
 if (tokenHash is null)
     Console.WriteLine($"Код подключения (15 минут): {pairingCode}");
 
 app.MapGet("/api/v1/health", () => Results.Ok(new { apiVersion = 1 }));
+app.MapPost("/api/v1/pair/storage", async (PairRequest request) =>
+{
+    await changes.WaitAsync();
+    try
+    {
+        return CanPair(request.Code) ? Results.Ok(GetStorage()) : Results.Unauthorized();
+    }
+    finally
+    {
+        changes.Release();
+    }
+});
+
 app.MapPost("/api/v1/pair", async (PairRequest request) =>
 {
     await changes.WaitAsync();
     try
     {
-        if (tokenHash is not null || DateTimeOffset.UtcNow > pairingExpires ||
-            request.Code is null || !Matches(Hash(pairingCode), request.Code))
+        if (!CanPair(request.Code))
             return Results.Unauthorized();
+
+        var storage = GetStorage();
+        if (request.QuotaBytes is long limit &&
+            (limit <= 0 || limit < storage.UsedBytes || limit > storage.UsedBytes + storage.AvailableBytes))
+            return Results.BadRequest(new { error = "Лимит должен покрывать занятый объём и помещаться на диске." });
 
         var token = RandomNumberGenerator.GetHexString(64);
         var hash = Hash(token);
-        await File.WriteAllTextAsync(credentialsPath + ".tmp", JsonSerializer.Serialize(hash));
+        await File.WriteAllTextAsync(credentialsPath + ".tmp", JsonSerializer.Serialize(new StoredCredentials(hash, request.QuotaBytes)));
         File.Move(credentialsPath + ".tmp", credentialsPath, overwrite: true);
+        quotaBytes = request.QuotaBytes;
         Volatile.Write(ref tokenHash, hash);
         return Results.Ok(new { token });
     }
@@ -64,6 +84,13 @@ api.AddEndpointFilter(async (context, next) =>
     }
 });
 
+api.MapGet("/quota", async (CancellationToken ct) =>
+{
+    await changes.WaitAsync(ct);
+    try { return Results.Ok(GetStorage()); }
+    finally { changes.Release(); }
+});
+
 api.MapGet("", (string? path) =>
 {
     var directory = Resolve(path ?? "", allowRoot: true);
@@ -73,6 +100,57 @@ api.MapGet("", (string? path) =>
         .Where(item => (item.Attributes & FileAttributes.ReparsePoint) == 0)
         .Select(item => Describe(item.FullName)).ToArray();
     return Results.Ok(entries);
+});
+
+api.MapGet("/thumbnail", async (string path, CancellationToken ct) =>
+{
+    var file = Resolve(path);
+    if (!File.Exists(file))
+        return Results.NotFound();
+    var extension = Path.GetExtension(file).ToLowerInvariant();
+    if (extension is not (".jpg" or ".jpeg" or ".png" or ".mp4"))
+        return Results.NoContent();
+
+    await thumbnailSlot.WaitAsync(ct);
+    try
+    {
+        if (extension == ".mp4")
+        {
+            var frame = await VideoThumbnail.ReadAsync(file, ct);
+            return frame is null ? Results.NoContent() : Results.Bytes(frame, "image/png");
+        }
+
+        await using var source = File.OpenRead(file);
+        if (source.Length > 32 * 1024 * 1024)
+            return Results.NoContent();
+
+        using var codec = SKCodec.Create(source);
+        if (codec is null || codec.EncodedFormat is not (SKEncodedImageFormat.Jpeg or SKEncodedImageFormat.Png) ||
+            codec.Info.Width <= 0 || codec.Info.Height <= 0 ||
+            (long)codec.Info.Width * codec.Info.Height > 24_000_000)
+            return Results.NoContent();
+
+        ct.ThrowIfCancellationRequested();
+        using var bitmap = SKBitmap.Decode(codec);
+        if (bitmap is null)
+            return Results.NoContent();
+
+        var scale = Math.Min(1, 128.0 / Math.Max(bitmap.Width, bitmap.Height));
+        var size = new SKImageInfo(Math.Max(1, (int)Math.Round(bitmap.Width * scale)),
+            Math.Max(1, (int)Math.Round(bitmap.Height * scale)));
+        using var surface = SKSurface.Create(size);
+        surface.Canvas.Clear(SKColors.Transparent);
+        using var image = SKImage.FromBitmap(bitmap);
+        surface.Canvas.DrawImage(image, new SKRect(0, 0, size.Width, size.Height),
+            new SKSamplingOptions(SKFilterMode.Linear));
+        using var snapshot = surface.Snapshot();
+        using var output = snapshot.Encode(SKEncodedImageFormat.Png, 100);
+        return output is null ? Results.NoContent() : Results.Bytes(output.ToArray(), "image/png");
+    }
+    finally
+    {
+        thumbnailSlot.Release();
+    }
 });
 
 api.MapGet("/content", (string path) =>
@@ -86,30 +164,49 @@ api.MapGet("/content", (string path) =>
 
 api.MapPut("/content", async (string path, HttpRequest request, CancellationToken ct) =>
 {
-    var file = Resolve(path);
-    if (!Directory.Exists(Path.GetDirectoryName(file)))
-        return Results.NotFound();
+    await changes.WaitAsync(ct);
     var temporary = Path.Combine(data, Guid.NewGuid().ToString("N") + ".upload");
     try
     {
+        var file = Resolve(path);
+        if (!Directory.Exists(Path.GetDirectoryName(file)))
+            return Results.NotFound();
+        if (Path.Exists(file))
+            return Results.Conflict();
+
+        var storage = GetStorage();
+        var quotaRemaining = storage.QuotaBytes is long limit
+            ? Math.Max(0, limit - storage.UsedBytes)
+            : long.MaxValue;
+        var budget = Math.Min(quotaRemaining, storage.AvailableBytes);
+        var message = quotaRemaining <= storage.AvailableBytes
+            ? "Превышена квота облака."
+            : "На диске сервера недостаточно места.";
+        IResult InsufficientSpace() => Results.Json(new { error = message }, statusCode: 507);
+        if (request.ContentLength > budget)
+            return InsufficientSpace();
+
         await using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None,
             bufferSize: 65536, useAsync: true))
-            await request.Body.CopyToAsync(stream, ct);
-
-        await changes.WaitAsync(ct);
-        try
         {
-            File.Move(temporary, Resolve(path));
-            return Results.Ok(Describe(file));
+            var buffer = new byte[65536];
+            int read;
+            while ((read = await request.Body.ReadAsync(buffer, ct)) != 0)
+            {
+                if (read > budget)
+                    return InsufficientSpace();
+                await stream.WriteAsync(buffer.AsMemory(0, read), ct);
+                budget -= read;
+            }
         }
-        finally
-        {
-            changes.Release();
-        }
+        ct.ThrowIfCancellationRequested();
+        File.Move(temporary, file);
+        return Results.Ok(Describe(file));
     }
     finally
     {
-        File.Delete(temporary);
+        try { File.Delete(temporary); }
+        finally { changes.Release(); }
     }
 });
 
@@ -183,6 +280,36 @@ api.MapDelete("", async (string path, CancellationToken ct) =>
 
 app.Run();
 
+StoredCredentials? ReadCredentials()
+{
+    if (!File.Exists(credentialsPath))
+        return null;
+    using var json = JsonDocument.Parse(File.ReadAllText(credentialsPath));
+    return json.RootElement.ValueKind == JsonValueKind.String
+        ? new StoredCredentials(json.RootElement.GetString()!, null)
+        : json.RootElement.Deserialize<StoredCredentials>();
+}
+
+bool CanPair(string? code) => tokenHash is null && DateTimeOffset.UtcNow <= pairingExpires &&
+    code is not null && Matches(Hash(pairingCode), code);
+
+StorageUsage GetStorage()
+{
+    var comparer = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+    var drive = DriveInfo.GetDrives()
+        .Where(item => Path.TrimEndingDirectorySeparator(files).Equals(Path.TrimEndingDirectorySeparator(item.Name), comparer)
+            || files.StartsWith(Path.EndsInDirectorySeparator(item.Name) ? item.Name : item.Name + Path.DirectorySeparatorChar, comparer))
+        .OrderByDescending(item => item.Name.Length)
+        .First();
+    var used = new DirectoryInfo(files).EnumerateFiles("*", new EnumerationOptions
+    {
+        RecurseSubdirectories = true,
+        AttributesToSkip = FileAttributes.ReparsePoint,
+        IgnoreInaccessible = false
+    }).Sum(file => file.Length);
+    return new StorageUsage(drive.TotalSize, drive.AvailableFreeSpace, used, quotaBytes);
+}
+
 string Resolve(string? path, bool allowRoot = false)
 {
     if (path is "" && allowRoot)
@@ -221,6 +348,8 @@ static string Hash(string value) => Convert.ToHexString(SHA256.HashData(Encoding
 static bool Matches(string hash, string value) =>
     CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hash), Convert.FromHexString(Hash(value)));
 
-record PairRequest(string? Code);
+record PairRequest(string? Code, long? QuotaBytes);
+record StoredCredentials(string TokenHash, long? QuotaBytes);
+record StorageUsage(long DiskBytes, long AvailableBytes, long UsedBytes, long? QuotaBytes);
 record MoveRequest(string From, string To);
 
