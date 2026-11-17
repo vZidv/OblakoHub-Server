@@ -14,23 +14,18 @@
 ### 1. Установи Docker и Git
 
 ```bash
-(
-  set -e
-  run=()
-  if [ "$(id -u)" -ne 0 ]; then run=(sudo); fi
-  "${run[@]}" apt update
-  "${run[@]}" apt install -y ca-certificates curl git
-  "${run[@]}" install -d -m 0755 /etc/apt/keyrings
-  "${run[@]}" curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-  "${run[@]}" chmod a+r /etc/apt/keyrings/docker.asc
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | "${run[@]}" tee /etc/apt/sources.list.d/docker.list
-  "${run[@]}" apt update
-  "${run[@]}" apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  "${run[@]}" systemctl enable --now docker
-)
+sudo apt update
+sudo apt install -y ca-certificates curl git
+sudo install -d -m 0755 /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker
 ```
 
-[Установка Docker на Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+Если ты вошёл как `root` и `sudo` отсутствует, вводи команды без `sudo`. [Установка Docker на Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
 ### 2. Запусти своё облако
 
