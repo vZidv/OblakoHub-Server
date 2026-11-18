@@ -102,6 +102,32 @@ api.MapGet("", (string? path) =>
     return Results.Ok(entries);
 });
 
+api.MapGet("/search", (string query, CancellationToken ct) =>
+{
+    query = query.Trim();
+    if (query.Length is < 1 or > 160)
+        return Results.BadRequest(new { error = "Введите от 1 до 160 символов." });
+
+    var entries = Directory.EnumerateFileSystemEntries(files, "*", new EnumerationOptions
+    {
+        RecurseSubdirectories = true,
+        AttributesToSkip = FileAttributes.ReparsePoint,
+        IgnoreInaccessible = true
+    });
+    var matches = new List<object>();
+    foreach (var entry in entries)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (!Path.GetFileName(entry).Contains(query, StringComparison.OrdinalIgnoreCase))
+            continue;
+        try { matches.Add(Describe(entry)); }
+        catch (IOException) when (!Path.Exists(entry)) { }
+        if (matches.Count == 100)
+            break;
+    }
+    return Results.Ok(matches);
+});
+
 api.MapGet("/thumbnail", async (string path, CancellationToken ct) =>
 {
     var file = Resolve(path);
