@@ -91,6 +91,36 @@ api.MapGet("/quota", async (CancellationToken ct) =>
     finally { changes.Release(); }
 });
 
+api.MapPut("/quota", async (QuotaRequest request, CancellationToken ct) =>
+{
+    await changes.WaitAsync(ct);
+    try
+    {
+        var storage = GetStorage();
+        if (request.QuotaBytes is long limit && (limit <= 0 || limit > storage.DiskBytes))
+            return Results.BadRequest(new { error = "Лимит должен быть больше нуля и не превышать объём диска." });
+
+        var hash = Volatile.Read(ref tokenHash)!;
+        var temp = credentialsPath + ".tmp";
+        try
+        {
+            await File.WriteAllTextAsync(temp,
+                JsonSerializer.Serialize(new StoredCredentials(hash, request.QuotaBytes)), ct);
+            File.Move(temp, credentialsPath, overwrite: true);
+            quotaBytes = request.QuotaBytes;
+        }
+        finally
+        {
+            File.Delete(temp);
+        }
+        return Results.Ok(storage with { QuotaBytes = quotaBytes });
+    }
+    finally
+    {
+        changes.Release();
+    }
+});
+
 api.MapGet("", (string? path) =>
 {
     var directory = Resolve(path ?? "", allowRoot: true);
@@ -375,6 +405,7 @@ static bool Matches(string hash, string value) =>
     CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hash), Convert.FromHexString(Hash(value)));
 
 record PairRequest(string? Code, long? QuotaBytes);
+record QuotaRequest(long? QuotaBytes);
 record StoredCredentials(string TokenHash, long? QuotaBytes);
 record StorageUsage(long DiskBytes, long AvailableBytes, long UsedBytes, long? QuotaBytes);
 record MoveRequest(string From, string To);
