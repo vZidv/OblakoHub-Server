@@ -4,17 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="Как запустить собственное облако OblakoHub на компьютере или VPS и подключить его в приложении.">
+  <meta name="description" content="Как запустить собственное облако OblakoHub на VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=3">
-  <script src="guide.js" defer></script>
+  <link rel="stylesheet" href="guide.css?v=4">
+  <script src="guide.js?v=4" defer></script>
 </head>
 <body>
   <div class="layout">
     <header class="top">
       <span class="brand"><img src="oblako.png" width="32" height="32" alt="">OblakoHub</span>
-      <a href="https://github.com/vZidv/OblakoHub-Server">Репозиторий на GitHub ↗</a>
+      <label class="theme-choice" hidden>Тема
+        <select id="theme">
+          <option value="system">Системная</option>
+          <option value="light">Светлая</option>
+          <option value="dark">Тёмная</option>
+        </select>
+      </label>
     </header>
     <main>
       <section class="hero" aria-labelledby="title">
@@ -31,15 +37,25 @@
         </figure>
       </section>
 
+      <section class="architecture" aria-labelledby="architecture-title">
+        <h2 id="architecture-title">Как это устроено</h2>
+        <div class="architecture-map">
+          <article><img src="oblako.png" alt="" width="48" height="48"><h3>Клиент OblakoHub</h3>
+            <p>На твоём компьютере. Показывает файлы с VPS рядом с другими облаками и отправляет команды серверу.</p></article>
+          <span class="protocol">HTTPS · API</span>
+          <article><img src="own-cloud.svg" alt="" width="48" height="48"><h3>OblakoHub Server</h3>
+            <p>На твоей VPS. Работает в Docker, хранит файлы в постоянном томе и отдаёт их клиенту по запросу.</p></article>
+        </div>
+        <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
+      </section>
+
       <fieldset class="scenario" id="setup">
-        <legend>Как ты хочешь запустить облако?</legend>
+        <legend>Выбери режим установки</legend>
         <div class="choices">
-          <input type="radio" name="scenario" id="local" aria-controls="local-guide" checked>
-          <label for="local"><i class="symbol laptop" aria-hidden="true"></i><strong>На компьютере</strong><span>Попробовать облако на своём устройстве через Docker.</span></label>
-          <input type="radio" name="scenario" id="auto" aria-controls="auto-guide">
-          <label for="auto"><i class="symbol spark" aria-hidden="true">✦</i><strong>На VPS из приложения</strong><span>Есть данные от хостинга? Установку выполнит OblakoHub.</span></label>
+          <input type="radio" name="scenario" id="auto" aria-controls="auto-guide" checked>
+          <label for="auto"><i class="symbol spark" aria-hidden="true">✦</i><strong>Автоматический</strong><span>Есть данные от хостинга? Установку выполнит OblakoHub.</span></label>
           <input type="radio" name="scenario" id="vps" aria-controls="vps-guide">
-          <label for="vps"><i class="symbol shell" aria-hidden="true">›_</i><strong>На VPS вручную</strong><span>Развернуть облако из терминала двумя блоками команд.</span></label>
+          <label for="vps"><i class="symbol shell" aria-hidden="true">›_</i><strong>Ручной</strong><span>Развернуть облако из терминала двумя блоками команд.</span></label>
         </div>
 
         <div class="steps" id="auto-guide">
@@ -61,30 +77,6 @@
           <section class="card">
             <h2><span class="step-number">3</span>Выбери объём облака</h2>
             <p>После установки появится раздел <strong>Место для облака</strong>. Прими рекомендованное значение или укажи свой лимит и заверши подключение. Облако появится в боковой панели.</p>
-          </section>
-        </div>
-
-        <div class="steps" id="local-guide">
-          <section class="card">
-            <h2><span class="step-number">1</span>Подготовь компьютер</h2>
-            <p>Установи <a href="https://git-scm.com/install/">Git</a> и запусти <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. На Linux также подойдёт Docker Engine. Docker запускает сервер, а Git скачивает его исходники. Открой PowerShell в Windows или терминал в Linux и скопируй команды ниже.</p>
-            <div class="command">
-              <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code><b>git</b> clone https://github.com/vZidv/OblakoHub-Server.git
-<b>cd</b> OblakoHub-Server</code></pre>
-            </div>
-          </section>
-          <section class="card">
-            <h2><span class="step-number">2</span>Запусти сервер</h2>
-            <p>В том же терминале собери образ и запусти контейнер. Последняя команда откроет журнал с одноразовым кодом.</p>
-            <div class="command">
-              <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code><b>docker</b> build -t oblakohub-server:dev .
-<b>docker</b> run -d --name oblakohub-server -p 127.0.0.1:8080:8080 -v oblakohub-data:/data oblakohub-server:dev
-<b>docker</b> logs -f oblakohub-server</code></pre>
-            </div>
-            <p class="result"><strong>Что появится в терминале</strong>Строка <samp>Код подключения (15 минут)</samp>. Скопируй код после неё. В клиенте укажи адрес <code>http://127.0.0.1:8080</code> и вставь код. Нажми <kbd>Ctrl+C</kbd>, чтобы закрыть журнал.</p>
-            <details><summary>Если код истёк</summary><p>До первого подключения выполни <code>docker restart oblakohub-server</code> и открой журнал снова.</p></details>
           </section>
         </div>
 
@@ -131,6 +123,13 @@
       </section>
       <p id="copy-status" class="visually-hidden" role="status"></p>
     </main>
+    <footer>
+      <strong>Исходный код на GitHub</strong>
+      <nav aria-label="Репозитории проекта">
+        <a href="https://github.com/vZidv/OblakoHub-Server">Сервер ↗</a>
+        <a href="https://github.com/vZidv/OblakoHub-Avalonia">Клиент ↗</a>
+      </nav>
+    </footer>
   </div>
 </body>
 </html>
