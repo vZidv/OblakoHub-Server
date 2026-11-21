@@ -14,18 +14,11 @@
 ### 1. Установи Docker и Git
 
 ```bash
-sudo apt update
-sudo apt install -y ca-certificates curl git
-sudo install -d -m 0755 /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | sudo tee /etc/apt/sources.list.d/docker.list
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl enable --now docker
+wget -O install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &&
+bash install-docker.sh
 ```
 
-Если ты вошёл как `root` и `sudo` отсутствует, вводи команды без `sudo`. [Установка Docker на Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+Если на VPS нет wget, скачай тот же скрипт через `curl -fLo install-docker.sh URL`, подставив ссылку из блока. [Установка Docker на Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
 ### 2. Запусти своё облако
 
