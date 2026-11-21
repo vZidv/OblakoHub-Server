@@ -7,7 +7,7 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=7">
+  <link rel="stylesheet" href="guide.css?v=8">
   <script src="guide.js?v=4" defer></script>
 </head>
 <body>
@@ -30,27 +30,17 @@
           <p>OblakoHub Server — программа, которая превращает твой VPS в личное облако. Файлы хранятся на твоём сервере, а в OblakoHub ты видишь их рядом с файлами из других облаков.</p>
           <a class="start" href="#setup">Выбрать способ установки <span aria-hidden="true">↓</span></a>
         </div>
-        <figure class="scene" aria-label="OblakoHub подключается к твоему серверу">
+        <figure class="scene" aria-label="Твой сервер, Яндекс Диск, Google Drive и Dropbox в OblakoHub">
           <div class="halo"></div>
           <img class="cloud-art" src="own-cloud.svg" alt="">
-          <div class="wire"></div>
-          <figcaption><img src="oblako.png" alt="" width="28" height="28"> OblakoHub</figcaption>
+          <span class="provider yandex"><img src="providers/yandex-disk.svg" alt="">Яндекс Диск</span>
+          <span class="provider google"><img src="providers/google-drive.svg" alt="">Google Drive</span>
+          <span class="provider dropbox"><img src="providers/dropbox.svg" alt="">Dropbox</span>
+          <span class="provider own"><img src="own-cloud.svg" alt="">Твой сервер</span>
         </figure>
       </section>
 
-      <section class="architecture" aria-labelledby="architecture-title">
-        <div class="layout">
-          <h2 id="architecture-title">Как это устроено</h2>
-          <div class="architecture-map">
-            <article><img src="oblako.png" alt="" width="48" height="48"><h3>Клиент OblakoHub</h3>
-              <p>На твоём компьютере. Показывает файлы с VPS рядом с другими облаками и отправляет команды серверу.</p></article>
-            <span class="protocol">HTTPS · API</span>
-            <article><img src="own-cloud.svg" alt="" width="48" height="48"><h3>OblakoHub Server</h3>
-              <p>На твоей VPS. Работает в Docker, хранит файлы в постоянном томе и отдаёт их клиенту по запросу.</p></article>
-          </div>
-          <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
-        </div>
-      </section>
+
 
       <div class="layout">
         <details class="client-location">
@@ -65,9 +55,17 @@
           <legend>Выбери режим установки</legend>
           <div class="choices">
             <input type="radio" name="scenario" id="auto" aria-controls="auto-guide" checked>
-            <label for="auto"><i class="symbol spark" aria-hidden="true">✦</i><strong>Автоматический</strong><span>Введи данные VPS в OblakoHub. Клиент сам установит сервер.</span></label>
+            <label for="auto">
+              <i class="symbol spark" aria-hidden="true">✦</i><strong>Автоматический</strong>
+              <span class="choice-description">Введи адрес VPS и данные для входа в OblakoHub. Клиент подключится по SSH, установит Docker, запустит сервер и настроит HTTPS. Дальше ты работаешь с файлами прямо в приложении.</span>
+              <span class="tags"><span>Из приложения</span><span>Docker установится сам</span></span>
+            </label>
             <input type="radio" name="scenario" id="vps" aria-controls="vps-guide">
-            <label for="vps"><i class="symbol shell" aria-hidden="true">›_</i><strong>Ручной</strong><span>Запусти команды на VPS, затем введи адрес и код в OblakoHub.</span></label>
+            <label for="vps">
+              <i class="symbol shell" aria-hidden="true">›_</i><strong>Ручной</strong>
+              <span class="choice-description">Выполни два блока команд в терминале VPS. Установщик покажет адрес сервера и одноразовый код. Введи их в OblakoHub в течение 15 минут, чтобы привязать облако.</span>
+              <span class="tags"><span>Из терминала VPS</span><span>Одноразовый код</span></span>
+            </label>
           </div>
 
           <div class="steps" id="auto-guide">
@@ -142,6 +140,19 @@
         </section>
         <p id="copy-status" class="visually-hidden" role="status"></p>
       </div>
+      <section class="architecture" aria-labelledby="architecture-title">
+        <div class="layout">
+          <h2 id="architecture-title">Как это устроено</h2>
+          <div class="architecture-map">
+            <article><img src="oblako.png" alt="" width="48" height="48"><h3>Клиент OblakoHub</h3>
+              <p>На твоём компьютере. Показывает файлы с VPS рядом с другими облаками и отправляет команды серверу.</p></article>
+            <span class="protocol">HTTPS · API</span>
+            <article><img src="own-cloud.svg" alt="" width="48" height="48"><h3>OblakoHub Server</h3>
+              <p>На твоей VPS. Работает в Docker, хранит файлы в постоянном томе и отдаёт их клиенту по запросу.</p></article>
+          </div>
+          <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
+        </div>
+      </section>
     </main>
   <footer>
     <div class="layout foot">
