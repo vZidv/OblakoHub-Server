@@ -7,12 +7,12 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=4">
+  <link rel="stylesheet" href="guide.css?v=5">
   <script src="guide.js?v=4" defer></script>
 </head>
 <body>
-  <div class="layout">
-    <header class="top">
+  <header>
+    <div class="layout top">
       <span class="brand"><img src="oblako.png" width="32" height="32" alt="">OblakoHub</span>
       <label class="theme-choice" hidden>Тема
         <select id="theme">
@@ -21,8 +21,9 @@
           <option value="dark">Тёмная</option>
         </select>
       </label>
-    </header>
-    <main>
+    </div>
+  </header>
+    <main class="layout">
       <section class="hero" aria-labelledby="title">
         <div class="intro">
           <h1 id="title">Своё облако<br><em>в OblakoHub</em></h1>
@@ -107,15 +108,14 @@
             <p class="result"><strong>Для подключения</strong> Введи IPv4 по запросу. Дождись строк <samp>Адрес подключения</samp> и <samp>Одноразовый код (15 минут)</samp>. Обе понадобятся в приложении.</p>
             <details><summary>Если код истёк</summary><p>До первого подключения снова выполни <code>bash install.sh</code> в папке проекта.</p></details>
           </section>
+          <section class="card">
+            <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
+            <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
+            <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Подключить</strong>.</p>
+            <p>Код действует 15 минут. Когда появится раздел <strong>Место для облака</strong>, выбери лимит и заверши подключение.</p>
+          </section>
         </div>
       </fieldset>
-
-      <section class="card connect">
-        <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
-        <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
-        <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Подключить</strong>.</p>
-        <p>Код действует 15 минут. Когда появится раздел <strong>Место для облака</strong>, выбери лимит и заверши подключение.</p>
-      </section>
       <section class="finish" aria-labelledby="finish-title">
         <img src="own-cloud.svg" alt="" width="72" height="72">
         <div><h2 id="finish-title">Открой своё облако</h2>
@@ -123,13 +123,14 @@
       </section>
       <p id="copy-status" class="visually-hidden" role="status"></p>
     </main>
-    <footer>
+  <footer>
+    <div class="layout foot">
       <strong>Исходный код на GitHub</strong>
       <nav aria-label="Репозитории проекта">
-        <a href="https://github.com/vZidv/OblakoHub-Server">Сервер ↗</a>
-        <a href="https://github.com/vZidv/OblakoHub-Avalonia">Клиент ↗</a>
+        <a href="https://github.com/vZidv/OblakoHub-Server">OblakoHub Server</a>
+        <a href="https://github.com/vZidv/OblakoHub-Avalonia">OblakoHub</a>
       </nav>
-    </footer>
-  </div>
+    </div>
+  </footer>
 </body>
 </html>
