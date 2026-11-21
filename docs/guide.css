@@ -289,8 +289,6 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
 .setup-list { max-width: 70ch; margin: 12px 0; padding-inline-start: 1.6em; color: var(--muted); }
 .setup-list li + li { margin-top: .45em; }
 .setup-list li::marker { color: var(--accent); font-weight: 650; }
-.finish { display: flex; align-items: center; gap: 20px; padding: 24px; margin-top: 24px; border-radius: 22px; background: linear-gradient(110deg, var(--sky), var(--lilac)); }
-.finish p { max-width: 72ch; margin-top: 6px; }
 @media (max-width: 680px) {
   .hero { grid-template-columns: 1fr; gap: 20px; }
   .scene { width: min(100%, 440px); justify-self: center; }
@@ -300,8 +298,6 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
   .choices .symbol { align-self: center; margin: 0; }
   .choices strong { align-self: center; padding-right: 28px; }
   .choice-description, .tags { grid-column: 1 / -1; }
-  .finish { align-items: flex-start; gap: 12px; padding: 18px; }
-  .finish img { width: 44px; height: auto; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
