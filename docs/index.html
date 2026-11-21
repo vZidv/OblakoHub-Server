@@ -7,7 +7,7 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=10">
+  <link rel="stylesheet" href="guide.css?v=11">
   <script src="guide.js?v=4" defer></script>
 </head>
 <body>
@@ -46,7 +46,7 @@
         <details class="client-location">
           <summary>Где в OblakoHub найти «Собственное облако»?</summary>
           <figure class="client-shot">
-            <a href="screenshots/providers.png"><img src="screenshots/providers.png" width="765" height="545" loading="lazy" alt="Окно «Добавить облако». Плитка «Собственное облако» находится в нижнем ряду слева."></a>
+            <a href="screenshots/providers-clean.png"><img src="screenshots/providers-clean.png" width="765" height="545" loading="lazy" alt="Окно «Добавить облако». Плитка «Собственное облако» находится в нижнем ряду слева."></a>
             <figcaption>На главной нажми «Добавить облако», затем выбери «Собственное облако».</figcaption>
           </figure>
         </details>
@@ -147,19 +147,6 @@
         </fieldset>
         <p id="copy-status" class="visually-hidden" role="status"></p>
       </div>
-      <section class="architecture" aria-labelledby="architecture-title">
-        <div class="layout">
-          <h2 id="architecture-title">Как это устроено</h2>
-          <div class="architecture-map">
-            <article><img src="oblako.png" alt="" width="48" height="48"><h3>Клиент OblakoHub</h3>
-              <p>На твоём компьютере. Показывает файлы с VPS рядом с другими облаками и отправляет команды серверу.</p></article>
-            <span class="protocol">HTTPS · API</span>
-            <article><img src="own-cloud.svg" alt="" width="48" height="48"><h3>OblakoHub Server</h3>
-              <p>На твоей VPS. Работает в Docker, хранит файлы в постоянном томе и отдаёт их клиенту по запросу.</p></article>
-          </div>
-          <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
-        </div>
-      </section>
     </main>
   <footer>
     <div class="layout foot">
