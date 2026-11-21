@@ -322,30 +322,12 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
   font: inherit;
   cursor: pointer;
 }
-.architecture {
-  margin-top: 36px;
-  padding-block: clamp(28px, 4vw, 48px);
-  background: linear-gradient(90deg, #21a5be, #2996cd 25%, #3187d9 50%, #4b80dd 75%, #7282d5);
-}
-.architecture h2 { color: #0a1b30; font-size: clamp(1.55rem, 3vw, 2rem); margin-bottom: 16px; }
-.architecture-map { display: grid; align-items: stretch; grid-template-columns: 1fr auto 1fr; }
-.architecture-map article { padding: 22px; border-radius: 20px; background: var(--surface); border-top: 3px solid #9f86de; }
-.architecture-map article:last-child { border-color: #4db8b7; }
-.architecture-map img { float: left; margin-right: 10px; object-fit: contain; }
-.architecture-map h3 { margin: 0; min-height: 48px; display: flex; align-items: center; }
-.architecture-map p, .architecture-note { color: var(--muted); }
-.architecture-note { margin-top: 14px; padding: 10px 16px; background: var(--secondary); border-radius: 12px; }
-.protocol { align-self: center; padding: 6px 12px; border-bottom: 2px dashed #a5e3ef; color: #0a1b30; font: 600 .85rem/1.4 monospace; }
 .foot, footer nav, footer a { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 footer { color: #f1f5ff; background: linear-gradient(110deg, #18394b, #302950); border-top: 3px solid #9581c8; }
 .foot { justify-content: space-between; padding-block: 24px; }
 footer a { margin: 0; color: #fff; background: #ffffff10; border-color: #ffffff55; text-decoration: none; }
 footer a:hover { background: #ffffff24; border-color: #a6dedc; }
 footer a::before { content: ""; width: 19px; height: 19px; background: currentColor; mask: url("github.svg") center/contain no-repeat; }
-@media (max-width: 680px) {
-  .architecture-map { grid-template-columns: 1fr; }
-  .protocol { justify-self: center; border: 0; border-inline-start: 2px dashed #56aaa8; }
-}
 
 .client-location { padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 .client-shot { width: min(100%, 765px); margin: 18px auto; text-align: center; }
