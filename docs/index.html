@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Как запустить собственное облако OblakoHub на компьютере или VPS и подключить его в приложении.">
+  <title>Собственное облако · OblakoHub</title>
+  <link rel="icon" href="oblako.png">
+  <link rel="stylesheet" href="guide.css">
+  <script src="guide.js" defer></script>
+</head>
+<body>
+  <div class="layout">
+    <header class="top">
+      <span class="brand"><img src="oblako.png" width="32" height="32" alt="">OblakoHub</span>
+      <a href="https://github.com/vZidv/OblakoHub-Server">Репозиторий на GitHub ↗</a>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="title">
+        <div class="hero-mark"><img src="oblako.png" width="128" height="128" alt=""></div>
+        <div>
+          <h1 id="title">Запусти своё облако</h1>
+          <p>Храни файлы на своём компьютере или VPS и открывай их в OblakoHub.</p>
+        </div>
+      </section>
+
+      <fieldset class="scenario">
+        <legend>Где будет работать облако?</legend>
+        <div class="choices">
+          <input type="radio" name="scenario" id="local" aria-controls="local-guide" checked>
+          <label for="local"><strong>На компьютере</strong><span>Клиент и сервер на одном устройстве</span></label>
+          <input type="radio" name="scenario" id="vps" aria-controls="vps-guide">
+          <label for="vps"><strong>На VPS</strong><span>Доступ к файлам через интернет</span></label>
+        </div>
+
+        <div class="steps" id="local-guide">
+          <section class="card">
+            <h2>1. Подготовь компьютер</h2>
+            <p>Установи <a href="https://git-scm.com/install/">Git</a> и запусти <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. Если на Linux уже установлен Docker Engine, можно использовать его.</p>
+            <div class="command">
+              <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
+              <pre><code>git clone https://github.com/vZidv/OblakoHub-Server.git
+cd OblakoHub-Server</code></pre>
+            </div>
+          </section>
+          <section class="card">
+            <h2>2. Запусти сервер</h2>
+            <p>В том же терминале выполни команды по порядку. После первой дождись окончания сборки. Когда увидишь код в журнале, нажми <kbd>Ctrl+C</kbd>, чтобы выйти из просмотра. Сервер останется запущен.</p>
+            <div class="command">
+              <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
+              <pre><code>docker build -t oblakohub-server:dev .
+docker run -d --name oblakohub-server -p 127.0.0.1:8080:8080 -v oblakohub-data:/data oblakohub-server:dev
+docker logs -f oblakohub-server</code></pre>
+            </div>
+            <p>Адрес сервера&nbsp;— <code>http://127.0.0.1:8080</code>. Если код истёк до подключения, выполни <code>docker restart oblakohub-server</code> и снова открой журнал.</p>
+          </section>
+        </div>
+
+        <div class="steps" id="vps-guide">
+          <section class="card">
+            <h2>1. Установи Docker и Git</h2>
+            <p>Открой терминал VPS с Ubuntu 24.04 LTS через SSH или в панели хостинга. Подготовь публичный IPv4 и разреши входящие TCP-подключения на порты 80 и 443 в панели хостинга.</p>
+            <div class="command">
+              <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
+              <pre><code>sudo apt update
+sudo apt install -y ca-certificates curl git
+sudo install -d -m 0755 /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker</code></pre>
+            </div>
+            <p>Если ты вошёл как <code>root</code> и <code>sudo</code> отсутствует, выполни команды без <code>sudo</code>.</p>
+          </section>
+          <section class="card">
+            <h2>2. Запусти сервер</h2>
+            <div class="command">
+              <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
+              <pre><code>git clone https://github.com/vZidv/OblakoHub-Server.git &amp;&amp;
+cd OblakoHub-Server &amp;&amp;
+bash install.sh</code></pre>
+            </div>
+            <p>Когда установщик спросит, введи публичный IPv4 из панели VPS. Он выведет HTTPS-адрес и одноразовый код. Если код истёк до подключения, снова выполни <code>bash install.sh</code> в папке проекта.</p>
+          </section>
+        </div>
+      </fieldset>
+
+      <section class="card connect">
+        <h2>Подключи облако в OblakoHub</h2>
+        <p>Открой <strong>Добавить облако → Собственное облако → Готовый сервер</strong>. Введи название, адрес сервера и одноразовый код, затем нажми <strong>Подключить</strong>.</p>
+        <p>Код действует 15 минут и используется один раз.</p>
+      </section>
+      <p id="copy-status" class="visually-hidden" role="status"></p>
+    </main>
+  </div>
+</body>
+</html>
