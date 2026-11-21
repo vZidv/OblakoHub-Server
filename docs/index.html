@@ -7,7 +7,7 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на компьютере или VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css">
+  <link rel="stylesheet" href="guide.css?v=2">
   <script src="guide.js" defer></script>
 </head>
 <body>
@@ -20,8 +20,8 @@
       <section class="hero" aria-labelledby="title">
         <div class="hero-mark"><img src="oblako.png" width="128" height="128" alt=""></div>
         <div>
-          <h1 id="title">Запусти своё облако</h1>
-          <p>Храни файлы на своём компьютере или VPS и открывай их в OblakoHub.</p>
+          <h1 id="title">Установка своего облака</h1>
+          <p>Выбери, где будут храниться файлы. Запусти сервер и подключи его к OblakoHub по одноразовому коду.</p>
         </div>
       </section>
 
@@ -36,54 +36,62 @@
 
         <div class="steps" id="local-guide">
           <section class="card">
-            <h2>1. Подготовь компьютер</h2>
+            <h2><span class="step-number">1</span>Подготовь компьютер</h2>
             <p>Установи <a href="https://git-scm.com/install/">Git</a> и запусти <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. Если на Linux уже установлен Docker Engine, можно использовать его.</p>
             <div class="command">
               <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code>git clone https://github.com/vZidv/OblakoHub-Server.git
-cd OblakoHub-Server</code></pre>
+              <pre><code><b>git</b> clone https://github.com/vZidv/OblakoHub-Server.git
+<b>cd</b> OblakoHub-Server</code></pre>
             </div>
           </section>
           <section class="card">
-            <h2>2. Запусти сервер</h2>
-            <p>В том же терминале выполни команды по порядку. После первой дождись окончания сборки. Когда увидишь код в журнале, нажми <kbd>Ctrl+C</kbd>, чтобы выйти из просмотра. Сервер останется запущен.</p>
+            <h2><span class="step-number">2</span>Запусти сервер</h2>
+            <p>В том же терминале собери образ и запусти контейнер. Последняя команда откроет журнал с одноразовым кодом.</p>
             <div class="command">
               <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code>docker build -t oblakohub-server:dev .
-docker run -d --name oblakohub-server -p 127.0.0.1:8080:8080 -v oblakohub-data:/data oblakohub-server:dev
-docker logs -f oblakohub-server</code></pre>
+              <pre><code><b>docker</b> build -t oblakohub-server:dev .
+<b>docker</b> run -d --name oblakohub-server -p 127.0.0.1:8080:8080 -v oblakohub-data:/data oblakohub-server:dev
+<b>docker</b> logs -f oblakohub-server</code></pre>
             </div>
-            <p>Адрес сервера&nbsp;— <code>http://127.0.0.1:8080</code>. Если код истёк до подключения, выполни <code>docker restart oblakohub-server</code> и снова открой журнал.</p>
+            <p class="result"><strong>Для подключения</strong> Используй адрес <code>http://127.0.0.1:8080</code> и код из журнала. Нажми <kbd>Ctrl+C</kbd>, чтобы закрыть журнал.</p>
+            <details><summary>Если код истёк</summary><p>До первого подключения выполни <code>docker restart oblakohub-server</code> и открой журнал снова.</p></details>
           </section>
         </div>
 
         <div class="steps" id="vps-guide">
           <section class="card">
-            <h2>1. Установи Docker и Git</h2>
-            <p>Открой терминал VPS с Ubuntu 24.04 LTS через SSH или в панели хостинга. Подготовь публичный IPv4 и разреши входящие TCP-подключения на порты 80 и 443 в панели хостинга.</p>
+            <h2><span class="step-number">1</span>Установи Docker и Git</h2>
+            <p>Для этих команд подойдёт VPS с Ubuntu и публичным IPv4. В панели хостинга открой входящие TCP-порты <strong>80 и 443</strong>, затем открой терминал VPS.</p>
             <div class="command">
               <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code>wget -O install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
-bash install-docker.sh</code></pre>
+              <pre><code><b>wget</b> -O install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
+<b>bash</b> install-docker.sh</code></pre>
             </div>
-            <p>Понадобится wget или curl. Если wget недоступен, скачай скрипт командой <code>curl -fLo install-docker.sh URL</code>, подставив ссылку из блока.</p>
+            <details><summary>Если на VPS нет wget</summary><p>Скачай и запусти тот же скрипт через curl.</p>
+              <div class="command"><div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
+                <pre><code><b>curl</b> -fLo install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
+<b>bash</b> install-docker.sh</code></pre>
+              </div>
+            </details>
           </section>
           <section class="card">
-            <h2>2. Запусти сервер</h2>
+            <h2><span class="step-number">2</span>Запусти сервер</h2>
             <div class="command">
               <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code>git clone https://github.com/vZidv/OblakoHub-Server.git &amp;&amp;
-cd OblakoHub-Server &amp;&amp;
-bash install.sh</code></pre>
+              <pre><code><b>git</b> clone https://github.com/vZidv/OblakoHub-Server.git &amp;&amp;
+<b>cd</b> OblakoHub-Server &amp;&amp;
+<b>bash</b> install.sh</code></pre>
             </div>
-            <p>Когда установщик спросит, введи публичный IPv4 из панели VPS. Он выведет HTTPS-адрес и одноразовый код. Если код истёк до подключения, снова выполни <code>bash install.sh</code> в папке проекта.</p>
+            <p class="result"><strong>Для подключения</strong> По запросу введи публичный IPv4 из панели VPS. Скопируй HTTPS-адрес и код, которые выведет установщик.</p>
+            <details><summary>Если код истёк</summary><p>До первого подключения снова выполни <code>bash install.sh</code> в папке проекта.</p></details>
           </section>
         </div>
       </fieldset>
 
       <section class="card connect">
-        <h2>Подключи облако в OblakoHub</h2>
-        <p>Открой <strong>Добавить облако → Собственное облако → Готовый сервер</strong>. Введи название, адрес сервера и одноразовый код, затем нажми <strong>Подключить</strong>.</p>
+        <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
+        <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
+        <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Подключить</strong>.</p>
         <p>Код действует 15 минут и используется один раз.</p>
       </section>
       <p id="copy-status" class="visually-hidden" role="status"></p>
