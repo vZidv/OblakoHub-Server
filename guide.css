@@ -32,7 +32,7 @@ a { color: var(--accent); text-underline-offset: .2em; }
 .top, .brand { display: flex; align-items: center; gap: 10px; }
 header { background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: 0 3px 16px var(--shadow); }
 .top { justify-content: space-between; padding-block: 12px; }
-main { padding-top: 24px; }
+main { padding-block: 24px 36px; }
 .brand { font-weight: 750; }
 .brand img { object-fit: contain; }
 
