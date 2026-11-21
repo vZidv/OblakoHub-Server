@@ -2,8 +2,6 @@
   color-scheme: light dark;
   --bg: light-dark(#f8fbfc, #141b25);
   --bg-end: light-dark(#f7f6fb, #191b28);
-  --architecture-start: light-dark(#e3f4f2, #193039);
-  --architecture-end: light-dark(#ede8f8, #30293f);
   --surface: light-dark(#fff, #192838);
   --secondary: light-dark(#f0f3fa, #203148);
   --line: light-dark(#d9e1ef, #394b62);
@@ -288,11 +286,9 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
 .steps .card:nth-child(3) { border-top-color: #80b897; }
 .command-header > span::before { content: "›_"; color: #89e9de; margin-right: 10px; font: 700 1rem Consolas, monospace; }
 .result { border-radius: 4px 14px 14px 4px; background: linear-gradient(120deg, var(--sky), var(--secondary)); }
-.fields { margin: 16px 0; padding: 0 18px; border-radius: 14px; background: var(--secondary); }
-.fields div { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; padding: 10px 0; }
-.fields div + div { border-top: 1px solid var(--line); }
-.fields dt { font-weight: 650; }
-.fields dd { margin: 0; color: var(--muted); }
+.setup-list { max-width: 70ch; margin: 12px 0; padding-inline-start: 1.6em; color: var(--muted); }
+.setup-list li + li { margin-top: .45em; }
+.setup-list li::marker { color: var(--accent); font-weight: 650; }
 .finish { display: flex; align-items: center; gap: 20px; padding: 24px; margin-top: 24px; border-radius: 22px; background: linear-gradient(110deg, var(--sky), var(--lilac)); }
 .finish p { max-width: 72ch; margin-top: 6px; }
 @media (max-width: 680px) {
@@ -306,7 +302,6 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
   .choice-description, .tags { grid-column: 1 / -1; }
   .finish { align-items: flex-start; gap: 12px; padding: 18px; }
   .finish img { width: 44px; height: auto; }
-  .fields div { grid-template-columns: 1fr; gap: 0; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
@@ -334,9 +329,9 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
 .architecture {
   margin-top: 36px;
   padding-block: clamp(28px, 4vw, 48px);
-  background: linear-gradient(105deg, var(--architecture-start), var(--architecture-end));
+  background: linear-gradient(90deg, #21a5be, #2996cd 25%, #3187d9 50%, #4b80dd 75%, #7282d5);
 }
-.architecture h2 { font-size: clamp(1.55rem, 3vw, 2rem); margin-bottom: 16px; }
+.architecture h2 { color: #0a1b30; font-size: clamp(1.55rem, 3vw, 2rem); margin-bottom: 16px; }
 .architecture-map { display: grid; align-items: stretch; grid-template-columns: 1fr auto 1fr; }
 .architecture-map article { padding: 22px; border-radius: 20px; background: var(--surface); border-top: 3px solid #9f86de; }
 .architecture-map article:last-child { border-color: #4db8b7; }
@@ -344,7 +339,7 @@ code { font-family: Consolas, "Liberation Mono", monospace; }
 .architecture-map h3 { margin: 0; min-height: 48px; display: flex; align-items: center; }
 .architecture-map p, .architecture-note { color: var(--muted); }
 .architecture-note { margin-top: 14px; padding: 10px 16px; background: var(--secondary); border-radius: 12px; }
-.protocol { align-self: center; padding: 6px 12px; border-bottom: 2px dashed #56aaa8; color: var(--accent); font: 600 .85rem/1.4 monospace; }
+.protocol { align-self: center; padding: 6px 12px; border-bottom: 2px dashed #a5e3ef; color: #0a1b30; font: 600 .85rem/1.4 monospace; }
 .foot, footer nav, footer a { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 footer { color: #f1f5ff; background: linear-gradient(110deg, #18394b, #302950); border-top: 3px solid #9581c8; }
 .foot { justify-content: space-between; padding-block: 24px; }
@@ -357,7 +352,7 @@ footer a::before { content: ""; width: 19px; height: 19px; background: currentCo
 }
 
 .client-location { padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
-.client-shot { margin: 18px 0; max-width: 765px; }
+.client-shot { width: min(100%, 765px); margin: 18px auto; text-align: center; }
 .client-shot a { display: block; border-radius: 12px; }
 .client-shot img { display: block; width: 100%; height: auto; border-radius: 12px; }
 .client-shot figcaption { margin-top: 8px; color: var(--muted); font-size: .9rem; }
