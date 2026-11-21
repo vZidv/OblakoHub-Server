@@ -7,7 +7,7 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=5">
+  <link rel="stylesheet" href="guide.css?v=6">
   <script src="guide.js?v=4" defer></script>
 </head>
 <body>
@@ -50,6 +50,14 @@
         <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
       </section>
 
+      <details class="client-location">
+        <summary>Где в OblakoHub найти «Собственное облако»?</summary>
+        <figure class="client-shot">
+          <a href="screenshots/providers.png"><img src="screenshots/providers.png" width="765" height="545" loading="lazy" alt="Окно «Добавить облако». Плитка «Собственное облако» находится в нижнем ряду слева."></a>
+          <figcaption>На главной нажми «Добавить облако», затем выбери «Собственное облако».</figcaption>
+        </figure>
+      </details>
+
       <fieldset class="scenario" id="setup">
         <legend>Выбери режим установки</legend>
         <div class="choices">
@@ -68,6 +76,10 @@
           <section class="card">
             <h2><span class="step-number">2</span>Запусти установку из OblakoHub</h2>
             <p>Открой <strong>Добавить облако → Собственное облако</strong>, придумай название и выбери <strong>Установить на VPS</strong>.</p>
+            <figure class="client-shot">
+              <a href="screenshots/ssh.png"><img src="screenshots/ssh.png" width="765" height="596" loading="lazy" alt="Форма «Установить на VPS» с полями IP-адреса, пользователя SSH и пароля или приватного ключа."></a>
+              <figcaption>Автоматическая установка. В эту форму вводятся данные из панели хостинга.</figcaption>
+            </figure>
             <dl class="fields">
               <div><dt>IP-адрес сервера</dt><dd>Публичный адрес из панели VPS.</dd></div>
               <div><dt>Пользователь SSH</dt><dd>Логин от хостинга, например <code>root</code>.</dd></div>
@@ -111,7 +123,11 @@
           <section class="card">
             <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
             <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
-            <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Подключить</strong>.</p>
+            <figure class="client-shot">
+              <a href="screenshots/ready.png"><img src="screenshots/ready.png" width="765" height="580" loading="lazy" alt="Форма «Готовый сервер» с полями адреса и одноразового кода и кнопкой «Проверить сервер»."></a>
+              <figcaption>Ручная установка. Сюда нужно вставить HTTPS-адрес и код, которые вывел установщик.</figcaption>
+            </figure>
+            <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Проверить сервер</strong>.</p>
             <p>Код действует 15 минут. Когда появится раздел <strong>Место для облака</strong>, выбери лимит и заверши подключение.</p>
           </section>
         </div>

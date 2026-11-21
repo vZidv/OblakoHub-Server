@@ -299,3 +299,9 @@ footer a::before { content: ""; width: 19px; height: 19px; background: currentCo
   .architecture-map { grid-template-columns: 1fr; }
   .protocol { justify-self: center; border: 0; border-inline-start: 2px dashed #56aaa8; }
 }
+
+.client-location { padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.client-shot { margin: 18px 0; max-width: 765px; }
+.client-shot a { display: block; border-radius: 12px; }
+.client-shot img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.client-shot figcaption { margin-top: 8px; color: var(--muted); font-size: .9rem; }
