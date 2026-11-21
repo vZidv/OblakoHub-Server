@@ -7,7 +7,7 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=6">
+  <link rel="stylesheet" href="guide.css?v=7">
   <script src="guide.js?v=4" defer></script>
 </head>
 <body>
@@ -23,11 +23,11 @@
       </label>
     </div>
   </header>
-    <main class="layout">
-      <section class="hero" aria-labelledby="title">
+    <main>
+      <section class="layout hero" aria-labelledby="title">
         <div class="intro">
           <h1 id="title">Своё облако<br><em>в OblakoHub</em></h1>
-          <p>Файлы лежат на твоём сервере. В приложении ты открываешь их так же, как файлы на Яндекс Диске или в Google Drive.</p>
+          <p>OblakoHub Server — программа, которая превращает твой VPS в личное облако. Файлы хранятся на твоём сервере, а в OblakoHub ты видишь их рядом с файлами из других облаков.</p>
           <a class="start" href="#setup">Выбрать способ установки <span aria-hidden="true">↓</span></a>
         </div>
         <figure class="scene" aria-label="OblakoHub подключается к твоему серверу">
@@ -39,105 +39,109 @@
       </section>
 
       <section class="architecture" aria-labelledby="architecture-title">
-        <h2 id="architecture-title">Как это устроено</h2>
-        <div class="architecture-map">
-          <article><img src="oblako.png" alt="" width="48" height="48"><h3>Клиент OblakoHub</h3>
-            <p>На твоём компьютере. Показывает файлы с VPS рядом с другими облаками и отправляет команды серверу.</p></article>
-          <span class="protocol">HTTPS · API</span>
-          <article><img src="own-cloud.svg" alt="" width="48" height="48"><h3>OblakoHub Server</h3>
-            <p>На твоей VPS. Работает в Docker, хранит файлы в постоянном томе и отдаёт их клиенту по запросу.</p></article>
+        <div class="layout">
+          <h2 id="architecture-title">Как это устроено</h2>
+          <div class="architecture-map">
+            <article><img src="oblako.png" alt="" width="48" height="48"><h3>Клиент OblakoHub</h3>
+              <p>На твоём компьютере. Показывает файлы с VPS рядом с другими облаками и отправляет команды серверу.</p></article>
+            <span class="protocol">HTTPS · API</span>
+            <article><img src="own-cloud.svg" alt="" width="48" height="48"><h3>OblakoHub Server</h3>
+              <p>На твоей VPS. Работает в Docker, хранит файлы в постоянном томе и отдаёт их клиенту по запросу.</p></article>
+          </div>
+          <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
         </div>
-        <p class="architecture-note">При автоматической установке клиент настраивает VPS по SSH. После подключения работа с файлами идёт по HTTPS.</p>
       </section>
 
-      <details class="client-location">
-        <summary>Где в OblakoHub найти «Собственное облако»?</summary>
-        <figure class="client-shot">
-          <a href="screenshots/providers.png"><img src="screenshots/providers.png" width="765" height="545" loading="lazy" alt="Окно «Добавить облако». Плитка «Собственное облако» находится в нижнем ряду слева."></a>
-          <figcaption>На главной нажми «Добавить облако», затем выбери «Собственное облако».</figcaption>
-        </figure>
-      </details>
+      <div class="layout">
+        <details class="client-location">
+          <summary>Где в OblakoHub найти «Собственное облако»?</summary>
+          <figure class="client-shot">
+            <a href="screenshots/providers.png"><img src="screenshots/providers.png" width="765" height="545" loading="lazy" alt="Окно «Добавить облако». Плитка «Собственное облако» находится в нижнем ряду слева."></a>
+            <figcaption>На главной нажми «Добавить облако», затем выбери «Собственное облако».</figcaption>
+          </figure>
+        </details>
 
-      <fieldset class="scenario" id="setup">
-        <legend>Выбери режим установки</legend>
-        <div class="choices">
-          <input type="radio" name="scenario" id="auto" aria-controls="auto-guide" checked>
-          <label for="auto"><i class="symbol spark" aria-hidden="true">✦</i><strong>Автоматический</strong><span>Есть данные от хостинга? Установку выполнит OblakoHub.</span></label>
-          <input type="radio" name="scenario" id="vps" aria-controls="vps-guide">
-          <label for="vps"><i class="symbol shell" aria-hidden="true">›_</i><strong>Ручной</strong><span>Развернуть облако из терминала двумя блоками команд.</span></label>
-        </div>
+        <fieldset class="scenario" id="setup">
+          <legend>Выбери режим установки</legend>
+          <div class="choices">
+            <input type="radio" name="scenario" id="auto" aria-controls="auto-guide" checked>
+            <label for="auto"><i class="symbol spark" aria-hidden="true">✦</i><strong>Автоматический</strong><span>Введи данные VPS в OblakoHub. Клиент сам установит сервер.</span></label>
+            <input type="radio" name="scenario" id="vps" aria-controls="vps-guide">
+            <label for="vps"><i class="symbol shell" aria-hidden="true">›_</i><strong>Ручной</strong><span>Запусти команды на VPS, затем введи адрес и код в OblakoHub.</span></label>
+          </div>
 
-        <div class="steps" id="auto-guide">
-          <section class="card">
-            <h2><span class="step-number">1</span>Подготовь данные от хостинга</h2>
-            <p>Для облака нужен VPS с публичным IPv4 и доступом по SSH. Найди IP, имя пользователя и пароль в письме хостинга или в панели управления. Если входишь по ключу, пригодится приватный ключ.</p>
-            <p class="result"><strong>Для доступа через интернет</strong>Разреши входящие TCP-подключения на порты 80 и 443 в панели хостинга. Установщик настроит HTTPS для IP-адреса.</p>
-          </section>
-          <section class="card">
-            <h2><span class="step-number">2</span>Запусти установку из OblakoHub</h2>
-            <p>Открой <strong>Добавить облако → Собственное облако</strong>, придумай название и выбери <strong>Установить на VPS</strong>.</p>
-            <figure class="client-shot">
-              <a href="screenshots/ssh.png"><img src="screenshots/ssh.png" width="765" height="596" loading="lazy" alt="Форма «Установить на VPS» с полями IP-адреса, пользователя SSH и пароля или приватного ключа."></a>
-              <figcaption>Автоматическая установка. В эту форму вводятся данные из панели хостинга.</figcaption>
-            </figure>
-            <dl class="fields">
-              <div><dt>IP-адрес сервера</dt><dd>Публичный адрес из панели VPS.</dd></div>
-              <div><dt>Пользователь SSH</dt><dd>Логин от хостинга, например <code>root</code>.</dd></div>
-              <div><dt>Пароль или приватный ключ</dt><dd>Данные для входа на этот сервер.</dd></div>
-            </dl>
-            <p>Нажми <strong>Установить облако</strong>. При первом подключении сверь отпечаток SSH-ключа с данными из консоли VPS. Если он совпадает, нажми <strong>Доверять и установить</strong>.</p>
-          </section>
-          <section class="card">
-            <h2><span class="step-number">3</span>Выбери объём облака</h2>
-            <p>После установки появится раздел <strong>Место для облака</strong>. Прими рекомендованное значение или укажи свой лимит и заверши подключение. Облако появится в боковой панели.</p>
-          </section>
-        </div>
+          <div class="steps" id="auto-guide">
+            <section class="card">
+              <h2><span class="step-number">1</span>Подготовь данные от хостинга</h2>
+              <p>Для облака нужен VPS с публичным IPv4 и доступом по SSH. Найди IP, имя пользователя и пароль в письме хостинга или в панели управления. Если входишь по ключу, пригодится приватный ключ.</p>
+              <p class="result"><strong>Для доступа через интернет</strong>Разреши входящие TCP-подключения на порты 80 и 443 в панели хостинга. Установщик настроит HTTPS для IP-адреса.</p>
+            </section>
+            <section class="card">
+              <h2><span class="step-number">2</span>Запусти установку из OblakoHub</h2>
+              <p>Открой <strong>Добавить облако → Собственное облако</strong>, придумай название и выбери <strong>Установить на VPS</strong>.</p>
+              <figure class="client-shot">
+                <a href="screenshots/ssh.png"><img src="screenshots/ssh.png" width="765" height="596" loading="lazy" alt="Форма «Установить на VPS» с полями IP-адреса, пользователя SSH и пароля или приватного ключа."></a>
+                <figcaption>Автоматическая установка. В эту форму вводятся данные из панели хостинга.</figcaption>
+              </figure>
+              <dl class="fields">
+                <div><dt>IP-адрес сервера</dt><dd>Публичный адрес из панели VPS.</dd></div>
+                <div><dt>Пользователь SSH</dt><dd>Логин от хостинга, например <code>root</code>.</dd></div>
+                <div><dt>Пароль или приватный ключ</dt><dd>Данные для входа на этот сервер.</dd></div>
+              </dl>
+              <p>Нажми <strong>Установить облако</strong>. При первом подключении сверь отпечаток SSH-ключа с данными из консоли VPS. Если он совпадает, нажми <strong>Доверять и установить</strong>.</p>
+            </section>
+            <section class="card">
+              <h2><span class="step-number">3</span>Выбери объём облака</h2>
+              <p>После установки появится раздел <strong>Место для облака</strong>. Прими рекомендованное значение или укажи свой лимит и заверши подключение. Облако появится в боковой панели.</p>
+            </section>
+          </div>
 
-        <div class="steps" id="vps-guide">
-          <section class="card">
-            <h2><span class="step-number">1</span>Установи Docker и Git</h2>
-            <p>Для этих команд подойдёт VPS с Ubuntu и публичным IPv4. В панели хостинга открой входящие TCP-порты <strong>80 и 443</strong>, затем открой терминал VPS.</p>
-            <div class="command">
-              <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code><b>wget</b> -O install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
-<b>bash</b> install-docker.sh</code></pre>
-            </div>
-            <details><summary>Если на VPS нет wget</summary><p>Скачай и запусти тот же скрипт через curl.</p>
-              <div class="command"><div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
-                <pre><code><b>curl</b> -fLo install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
+          <div class="steps" id="vps-guide">
+            <section class="card">
+              <h2><span class="step-number">1</span>Установи Docker и Git</h2>
+              <p>Для этих команд подойдёт VPS с Ubuntu и публичным IPv4. В панели хостинга открой входящие TCP-порты <strong>80 и 443</strong>, затем открой терминал VPS.</p>
+              <div class="command">
+                <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
+                <pre><code><b>wget</b> -O install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
 <b>bash</b> install-docker.sh</code></pre>
               </div>
-            </details>
-          </section>
-          <section class="card">
-            <h2><span class="step-number">2</span>Запусти сервер</h2>
-            <div class="command">
-              <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code><b>git</b> clone https://github.com/vZidv/OblakoHub-Server.git &amp;&amp;
+              <details><summary>Если на VPS нет wget</summary><p>Скачай и запусти тот же скрипт через curl.</p>
+                <div class="command"><div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
+                  <pre><code><b>curl</b> -fLo install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
+<b>bash</b> install-docker.sh</code></pre>
+                </div>
+              </details>
+            </section>
+            <section class="card">
+              <h2><span class="step-number">2</span>Запусти сервер</h2>
+              <div class="command">
+                <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
+                <pre><code><b>git</b> clone https://github.com/vZidv/OblakoHub-Server.git &amp;&amp;
 <b>cd</b> OblakoHub-Server &amp;&amp;
 <b>bash</b> install.sh</code></pre>
-            </div>
-            <p class="result"><strong>Для подключения</strong> Введи IPv4 по запросу. Дождись строк <samp>Адрес подключения</samp> и <samp>Одноразовый код (15 минут)</samp>. Обе понадобятся в приложении.</p>
-            <details><summary>Если код истёк</summary><p>До первого подключения снова выполни <code>bash install.sh</code> в папке проекта.</p></details>
-          </section>
-          <section class="card">
-            <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
-            <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
-            <figure class="client-shot">
-              <a href="screenshots/ready.png"><img src="screenshots/ready.png" width="765" height="580" loading="lazy" alt="Форма «Готовый сервер» с полями адреса и одноразового кода и кнопкой «Проверить сервер»."></a>
-              <figcaption>Ручная установка. Сюда нужно вставить HTTPS-адрес и код, которые вывел установщик.</figcaption>
-            </figure>
-            <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Проверить сервер</strong>.</p>
-            <p>Код действует 15 минут. Когда появится раздел <strong>Место для облака</strong>, выбери лимит и заверши подключение.</p>
-          </section>
-        </div>
-      </fieldset>
-      <section class="finish" aria-labelledby="finish-title">
-        <img src="own-cloud.svg" alt="" width="72" height="72">
-        <div><h2 id="finish-title">Открой своё облако</h2>
-          <p>Найди его по выбранному названию в боковой панели OblakoHub. Нажми «Загрузить» и выбери первый файл. Он появится в списке и будет храниться на твоём сервере.</p></div>
-      </section>
-      <p id="copy-status" class="visually-hidden" role="status"></p>
+              </div>
+              <p class="result"><strong>Для подключения</strong> Введи IPv4 по запросу. Дождись строк <samp>Адрес подключения</samp> и <samp>Одноразовый код (15 минут)</samp>. Обе понадобятся в приложении.</p>
+              <details><summary>Если код истёк</summary><p>До первого подключения снова выполни <code>bash install.sh</code> в папке проекта.</p></details>
+            </section>
+            <section class="card">
+              <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
+              <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
+              <figure class="client-shot">
+                <a href="screenshots/ready.png"><img src="screenshots/ready.png" width="765" height="580" loading="lazy" alt="Форма «Готовый сервер» с полями адреса и одноразового кода и кнопкой «Проверить сервер»."></a>
+                <figcaption>Ручная установка. Сюда нужно вставить HTTPS-адрес и код, которые вывел установщик.</figcaption>
+              </figure>
+              <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Проверить сервер</strong>.</p>
+              <p>Код действует 15 минут. Когда появится раздел <strong>Место для облака</strong>, выбери лимит и заверши подключение.</p>
+            </section>
+          </div>
+        </fieldset>
+        <section class="finish" aria-labelledby="finish-title">
+          <img src="own-cloud.svg" alt="" width="72" height="72">
+          <div><h2 id="finish-title">Открой своё облако</h2>
+            <p>Найди его по выбранному названию в боковой панели OblakoHub. Нажми «Загрузить» и выбери первый файл. Он появится в списке и будет храниться на твоём сервере.</p></div>
+        </section>
+        <p id="copy-status" class="visually-hidden" role="status"></p>
+      </div>
     </main>
   <footer>
     <div class="layout foot">
