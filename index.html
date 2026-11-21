@@ -63,17 +63,10 @@ docker logs -f oblakohub-server</code></pre>
             <p>Открой терминал VPS с Ubuntu 24.04 LTS через SSH или в панели хостинга. Подготовь публичный IPv4 и разреши входящие TCP-подключения на порты 80 и 443 в панели хостинга.</p>
             <div class="command">
               <div class="command-header"><span>Терминал на VPS</span><button type="button" hidden>Скопировать</button></div>
-              <pre><code>sudo apt update
-sudo apt install -y ca-certificates curl git
-sudo install -d -m 0755 /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | sudo tee /etc/apt/sources.list.d/docker.list
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl enable --now docker</code></pre>
+              <pre><code>wget -O install-docker.sh https://raw.githubusercontent.com/vZidv/OblakoHub-Server/main/install-docker.sh &amp;&amp;
+bash install-docker.sh</code></pre>
             </div>
-            <p>Если ты вошёл как <code>root</code> и <code>sudo</code> отсутствует, выполни команды без <code>sudo</code>.</p>
+            <p>Понадобится wget или curl. Если wget недоступен, скачай скрипт командой <code>curl -fLo install-docker.sh URL</code>, подставив ссылку из блока.</p>
           </section>
           <section class="card">
             <h2>2. Запусти сервер</h2>
