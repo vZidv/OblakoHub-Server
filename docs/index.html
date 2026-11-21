@@ -7,7 +7,7 @@
   <meta name="description" content="Как запустить собственное облако OblakoHub на компьютере или VPS и подключить его в приложении.">
   <title>Собственное облако · OblakoHub</title>
   <link rel="icon" href="oblako.png">
-  <link rel="stylesheet" href="guide.css?v=2">
+  <link rel="stylesheet" href="guide.css?v=3">
   <script src="guide.js" defer></script>
 </head>
 <body>
@@ -18,26 +18,56 @@
     </header>
     <main>
       <section class="hero" aria-labelledby="title">
-        <div class="hero-mark"><img src="oblako.png" width="128" height="128" alt=""></div>
-        <div>
-          <h1 id="title">Установка своего облака</h1>
-          <p>Выбери, где будут храниться файлы. Запусти сервер и подключи его к OblakoHub по одноразовому коду.</p>
+        <div class="intro">
+          <h1 id="title">Своё облако<br><em>в OblakoHub</em></h1>
+          <p>Файлы лежат на твоём сервере. В приложении ты открываешь их так же, как файлы на Яндекс Диске или в Google Drive.</p>
+          <a class="start" href="#setup">Выбрать способ установки <span aria-hidden="true">↓</span></a>
         </div>
+        <figure class="scene" aria-label="OblakoHub подключается к твоему серверу">
+          <div class="halo"></div>
+          <img class="cloud-art" src="own-cloud.svg" alt="">
+          <div class="wire"></div>
+          <figcaption><img src="oblako.png" alt="" width="28" height="28"> OblakoHub</figcaption>
+        </figure>
       </section>
 
-      <fieldset class="scenario">
-        <legend>Где будет работать облако?</legend>
+      <fieldset class="scenario" id="setup">
+        <legend>Как ты хочешь запустить облако?</legend>
         <div class="choices">
           <input type="radio" name="scenario" id="local" aria-controls="local-guide" checked>
-          <label for="local"><strong>На компьютере</strong><span>Клиент и сервер на одном устройстве</span></label>
+          <label for="local"><i class="symbol laptop" aria-hidden="true"></i><strong>На компьютере</strong><span>Попробовать облако на своём устройстве через Docker.</span></label>
+          <input type="radio" name="scenario" id="auto" aria-controls="auto-guide">
+          <label for="auto"><i class="symbol spark" aria-hidden="true">✦</i><strong>На VPS из приложения</strong><span>Есть данные от хостинга? Установку выполнит OblakoHub.</span></label>
           <input type="radio" name="scenario" id="vps" aria-controls="vps-guide">
-          <label for="vps"><strong>На VPS</strong><span>Доступ к файлам через интернет</span></label>
+          <label for="vps"><i class="symbol shell" aria-hidden="true">›_</i><strong>На VPS вручную</strong><span>Развернуть облако из терминала двумя блоками команд.</span></label>
+        </div>
+
+        <div class="steps" id="auto-guide">
+          <section class="card">
+            <h2><span class="step-number">1</span>Подготовь данные от хостинга</h2>
+            <p>Для облака нужен VPS с публичным IPv4 и доступом по SSH. Найди IP, имя пользователя и пароль в письме хостинга или в панели управления. Если входишь по ключу, пригодится приватный ключ.</p>
+            <p class="result"><strong>Для доступа через интернет</strong>Разреши входящие TCP-подключения на порты 80 и 443 в панели хостинга. Установщик настроит HTTPS для IP-адреса.</p>
+          </section>
+          <section class="card">
+            <h2><span class="step-number">2</span>Запусти установку из OblakoHub</h2>
+            <p>Открой <strong>Добавить облако → Собственное облако</strong>, придумай название и выбери <strong>Установить на VPS</strong>.</p>
+            <dl class="fields">
+              <div><dt>IP-адрес сервера</dt><dd>Публичный адрес из панели VPS.</dd></div>
+              <div><dt>Пользователь SSH</dt><dd>Логин от хостинга, например <code>root</code>.</dd></div>
+              <div><dt>Пароль или приватный ключ</dt><dd>Данные для входа на этот сервер.</dd></div>
+            </dl>
+            <p>Нажми <strong>Установить облако</strong>. При первом подключении сверь отпечаток SSH-ключа с данными из консоли VPS. Если он совпадает, нажми <strong>Доверять и установить</strong>.</p>
+          </section>
+          <section class="card">
+            <h2><span class="step-number">3</span>Выбери объём облака</h2>
+            <p>После установки появится раздел <strong>Место для облака</strong>. Прими рекомендованное значение или укажи свой лимит и заверши подключение. Облако появится в боковой панели.</p>
+          </section>
         </div>
 
         <div class="steps" id="local-guide">
           <section class="card">
             <h2><span class="step-number">1</span>Подготовь компьютер</h2>
-            <p>Установи <a href="https://git-scm.com/install/">Git</a> и запусти <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. Если на Linux уже установлен Docker Engine, можно использовать его.</p>
+            <p>Установи <a href="https://git-scm.com/install/">Git</a> и запусти <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. На Linux также подойдёт Docker Engine. Docker запускает сервер, а Git скачивает его исходники. Открой PowerShell в Windows или терминал в Linux и скопируй команды ниже.</p>
             <div class="command">
               <div class="command-header"><span>Терминал на компьютере</span><button type="button" hidden>Скопировать</button></div>
               <pre><code><b>git</b> clone https://github.com/vZidv/OblakoHub-Server.git
@@ -53,7 +83,7 @@
 <b>docker</b> run -d --name oblakohub-server -p 127.0.0.1:8080:8080 -v oblakohub-data:/data oblakohub-server:dev
 <b>docker</b> logs -f oblakohub-server</code></pre>
             </div>
-            <p class="result"><strong>Для подключения</strong> Используй адрес <code>http://127.0.0.1:8080</code> и код из журнала. Нажми <kbd>Ctrl+C</kbd>, чтобы закрыть журнал.</p>
+            <p class="result"><strong>Что появится в терминале</strong>Строка <samp>Код подключения (15 минут)</samp>. Скопируй код после неё. В клиенте укажи адрес <code>http://127.0.0.1:8080</code> и вставь код. Нажми <kbd>Ctrl+C</kbd>, чтобы закрыть журнал.</p>
             <details><summary>Если код истёк</summary><p>До первого подключения выполни <code>docker restart oblakohub-server</code> и открой журнал снова.</p></details>
           </section>
         </div>
@@ -82,7 +112,7 @@
 <b>cd</b> OblakoHub-Server &amp;&amp;
 <b>bash</b> install.sh</code></pre>
             </div>
-            <p class="result"><strong>Для подключения</strong> По запросу введи публичный IPv4 из панели VPS. Скопируй HTTPS-адрес и код, которые выведет установщик.</p>
+            <p class="result"><strong>Для подключения</strong> Введи IPv4 по запросу. Дождись строк <samp>Адрес подключения</samp> и <samp>Одноразовый код (15 минут)</samp>. Обе понадобятся в приложении.</p>
             <details><summary>Если код истёк</summary><p>До первого подключения снова выполни <code>bash install.sh</code> в папке проекта.</p></details>
           </section>
         </div>
@@ -92,7 +122,12 @@
         <h2><span class="step-number">3</span>Подключи облако в OblakoHub</h2>
         <p>Открой в клиенте <strong>Добавить облако → Собственное облако → Готовый сервер</strong>.</p>
         <p>Введи название, адрес сервера и одноразовый код. Нажми <strong>Подключить</strong>.</p>
-        <p>Код действует 15 минут и используется один раз.</p>
+        <p>Код действует 15 минут. Когда появится раздел <strong>Место для облака</strong>, выбери лимит и заверши подключение.</p>
+      </section>
+      <section class="finish" aria-labelledby="finish-title">
+        <img src="own-cloud.svg" alt="" width="72" height="72">
+        <div><h2 id="finish-title">Открой своё облако</h2>
+          <p>Найди его по выбранному названию в боковой панели OblakoHub. Нажми «Загрузить» и выбери первый файл. Он появится в списке и будет храниться на твоём сервере.</p></div>
       </section>
       <p id="copy-status" class="visually-hidden" role="status"></p>
     </main>
