@@ -1,4 +1,22 @@
 const copyStatus = document.querySelector("#copy-status");
+const themeSelect = document.querySelector("#theme");
+const themeKey = "oblakohub-guide-theme";
+
+function applyTheme(theme) {
+  const explicit = theme === "light" || theme === "dark";
+  themeSelect.value = explicit ? theme : "system";
+  if (explicit) document.documentElement.dataset.theme = theme;
+  else delete document.documentElement.dataset.theme;
+}
+
+let savedTheme;
+try { savedTheme = localStorage.getItem(themeKey); } catch { /* Storage may be disabled. */ }
+applyTheme(savedTheme);
+themeSelect.parentElement.hidden = false;
+themeSelect.addEventListener("change", () => {
+  applyTheme(themeSelect.value);
+  try { localStorage.setItem(themeKey, themeSelect.value); } catch { /* Apply for this visit. */ }
+});
 
 if (navigator.clipboard) {
   document.querySelectorAll(".command button").forEach((button) => {
