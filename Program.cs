@@ -1,6 +1,6 @@
 using SkiaSharp;
 using System.Security.Cryptography;
-using System.Text;
+
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,8 +12,9 @@ var credentialsPath = Path.Combine(data, "credentials.json");
 var changes = new SemaphoreSlim(1);
 var thumbnailSlot = new SemaphoreSlim(1);
 var pairingCode = RandomNumberGenerator.GetHexString(32);
+var pairingCodeHash = StorageRules.Hash(pairingCode);
 var pairingExpires = DateTimeOffset.UtcNow.AddMinutes(15);
-var credentials = ReadCredentials();
+var credentials = StorageRules.ReadCredentials(credentialsPath);
 var tokenHash = credentials?.TokenHash;
 long? quotaBytes = credentials?.QuotaBytes;
 
@@ -26,7 +27,7 @@ app.MapPost("/api/v1/pair/storage", async (PairRequest request) =>
     await changes.WaitAsync();
     try
     {
-        return CanPair(request.Code) ? Results.Ok(GetStorage()) : Results.Unauthorized();
+        return StorageRules.CanPair(tokenHash, DateTimeOffset.UtcNow, pairingExpires, pairingCodeHash, request.Code) ? Results.Ok(GetStorage()) : Results.Unauthorized();
     }
     finally
     {
@@ -39,16 +40,15 @@ app.MapPost("/api/v1/pair", async (PairRequest request) =>
     await changes.WaitAsync();
     try
     {
-        if (!CanPair(request.Code))
+        if (!StorageRules.CanPair(tokenHash, DateTimeOffset.UtcNow, pairingExpires, pairingCodeHash, request.Code))
             return Results.Unauthorized();
 
         var storage = GetStorage();
-        if (request.QuotaBytes is long limit &&
-            (limit <= 0 || limit < storage.UsedBytes || limit > storage.UsedBytes + storage.AvailableBytes))
+        if (!StorageRules.IsPairingQuotaValid(request.QuotaBytes, storage))
             return Results.BadRequest(new { error = "Лимит должен покрывать занятый объём и помещаться на диске." });
 
         var token = RandomNumberGenerator.GetHexString(64);
-        var hash = Hash(token);
+        var hash = StorageRules.Hash(token);
         await File.WriteAllTextAsync(credentialsPath + ".tmp", JsonSerializer.Serialize(new StoredCredentials(hash, request.QuotaBytes)));
         File.Move(credentialsPath + ".tmp", credentialsPath, overwrite: true);
         quotaBytes = request.QuotaBytes;
@@ -67,7 +67,7 @@ api.AddEndpointFilter(async (context, next) =>
     var auth = context.HttpContext.Request.Headers.Authorization.ToString();
     var hash = Volatile.Read(ref tokenHash);
     if (hash == null || !auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ||
-        !Matches(hash, auth[7..]))
+        !StorageRules.Matches(hash, auth[7..]))
         return Results.Unauthorized();
 
     try
@@ -336,24 +336,6 @@ api.MapDelete("", async (string path, CancellationToken ct) =>
 
 app.Run();
 
-StoredCredentials? ReadCredentials()
-{
-    string contents;
-    try { contents = File.ReadAllText(credentialsPath); }
-    catch (FileNotFoundException) { return null; }
-
-    using var json = JsonDocument.Parse(contents);
-    var stored = json.RootElement.ValueKind == JsonValueKind.String
-        ? new StoredCredentials(json.RootElement.GetString()!, null)
-        : json.RootElement.Deserialize<StoredCredentials>();
-    if (stored?.TokenHash is not { Length: 64 } hash || !hash.All(Uri.IsHexDigit))
-        throw new InvalidDataException("Повреждены данные подключения облака.");
-    return stored;
-}
-
-bool CanPair(string? code) => tokenHash is null && DateTimeOffset.UtcNow <= pairingExpires &&
-    code is not null && Matches(Hash(pairingCode), code);
-
 StorageUsage GetStorage()
 {
     var comparer = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
@@ -371,25 +353,7 @@ StorageUsage GetStorage()
     return new StorageUsage(drive.TotalSize, drive.AvailableFreeSpace, used, quotaBytes);
 }
 
-string Resolve(string? path, bool allowRoot = false)
-{
-    if (path is "" && allowRoot)
-        return files;
-    if (string.IsNullOrEmpty(path))
-        throw new ArgumentException("Укажите путь.");
-    var current = files;
-    foreach (var part in path.Split('/'))
-    {
-        if (part is "" or "." or ".." || part.IndexOfAny(['\\', ':', '\0']) >= 0 ||
-            part.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || part.TrimEnd(' ', '.') != part)
-            throw new ArgumentException("Недопустимый путь.");
-        current = Path.Combine(current, part);
-        if (new FileInfo(current).LinkTarget != null ||
-            (Path.Exists(current) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0))
-            throw new ArgumentException("Ссылки в хранилище не поддерживаются.");
-    }
-    return current;
-}
+string Resolve(string? path, bool allowRoot = false) => StorageRules.Resolve(files, path, allowRoot);
 
 object Describe(string path)
 {
@@ -404,10 +368,6 @@ object Describe(string path)
         ModifiedAt = item.LastWriteTimeUtc
     };
 }
-
-static string Hash(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
-static bool Matches(string hash, string value) =>
-    CryptographicOperations.FixedTimeEquals(Convert.FromHexString(hash), Convert.FromHexString(Hash(value)));
 
 record PairRequest(string? Code, long? QuotaBytes);
 record QuotaRequest(long? QuotaBytes);

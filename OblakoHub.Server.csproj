@@ -11,4 +11,9 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.148.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Tests/**/*.cs" />
+    <InternalsVisibleTo Include="OblakoHub.Tests" />
+  </ItemGroup>
+
 </Project>
