@@ -36,7 +36,19 @@ fi
 "${docker[@]}" compose version >/dev/null
 env_file=$(mktemp .env.XXXXXX)
 trap 'rm -f -- "$env_file"' EXIT
-printf 'CLOUD_IP=%s\n' "$ip" > "$env_file"
+# Keep project/volume selection and other Compose settings on reinstall.
+if [[ -f .env ]]; then
+  awk -v ip="$ip" '
+    NR > 1 { print previous }
+    { previous = $0 }
+    END {
+      if (NR && previous !~ /^CLOUD_IP=[0-9.]+$/) print previous
+      print "CLOUD_IP=" ip
+    }
+  ' .env > "$env_file"
+else
+  printf 'CLOUD_IP=%s\n' "$ip" > "$env_file"
+fi
 mv -- "$env_file" .env
 
 compose=("${docker[@]}" compose)

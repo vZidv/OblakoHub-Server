@@ -338,12 +338,17 @@ app.Run();
 
 StoredCredentials? ReadCredentials()
 {
-    if (!File.Exists(credentialsPath))
-        return null;
-    using var json = JsonDocument.Parse(File.ReadAllText(credentialsPath));
-    return json.RootElement.ValueKind == JsonValueKind.String
+    string contents;
+    try { contents = File.ReadAllText(credentialsPath); }
+    catch (FileNotFoundException) { return null; }
+
+    using var json = JsonDocument.Parse(contents);
+    var stored = json.RootElement.ValueKind == JsonValueKind.String
         ? new StoredCredentials(json.RootElement.GetString()!, null)
         : json.RootElement.Deserialize<StoredCredentials>();
+    if (stored?.TokenHash is not { Length: 64 } hash || !hash.All(Uri.IsHexDigit))
+        throw new InvalidDataException("Повреждены данные подключения облака.");
+    return stored;
 }
 
 bool CanPair(string? code) => tokenHash is null && DateTimeOffset.UtcNow <= pairingExpires &&
